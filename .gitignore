@@ -1,0 +1,9 @@
+node_modules/
+.next/
+tmp/
+*.tsbuildinfo
+.env*
+!.env.example
+
+# Outils locaux (Claude Code)
+.claude/
