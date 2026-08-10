@@ -2,7 +2,7 @@
 
 import React, { useState } from "react"
 import Image from "next/image"
-import { GitBranch, Globe, Layers, type LucideIcon } from "lucide-react"
+import { Code2, GitBranch, Globe, Layers, type LucideIcon } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
@@ -50,21 +50,16 @@ const fallbackIcons: Record<string, LucideIcon> = {
 }
 
 export function TechnologyBadge({ value }: { value: string }) {
-  const [brandLoaded, setBrandLoaded] = useState(false)
+  const [failed, setFailed] = useState(false)
   const brand = brandIcons[value]
-  const Icon = fallbackIcons[value] ?? Layers
+  const Icon = fallbackIcons[value] ?? Code2
 
   return (
     <Badge
       variant="outline"
       className="gap-1.5 px-2 py-0.5 text-[11px] font-medium transition-colors hover:bg-muted"
     >
-      {/*
-        The glyph shows until the brand asset has actually decoded, so a missing file
-        never flashes a broken image — it simply keeps the fallback.
-      */}
-      {!brandLoaded && <Icon className="size-3.5 text-muted-foreground" aria-hidden="true" />}
-      {brand && (
+      {brand && !failed ? (
         <Image
           src={brand.src}
           alt=""
@@ -73,13 +68,14 @@ export function TechnologyBadge({ value }: { value: string }) {
           // Next refuses SVG through the image optimizer unless dangerouslyAllowSVG is on;
           // serving them as-is keeps them working without loosening that setting.
           unoptimized={brand.src.endsWith(".svg")}
-          onLoad={() => setBrandLoaded(true)}
-          className={cn(
-            "size-3.5 object-contain",
-            brand.invertOnDark && "dark:invert",
-            !brandLoaded && "hidden"
-          )}
+          // 20 icons weighing 90kB in total: loading them eagerly avoids any dependency
+          // on IntersectionObserver and the pop-in as the section scrolls into view.
+          loading="eager"
+          onError={() => setFailed(true)}
+          className={cn("size-3.5 object-contain", brand.invertOnDark && "dark:invert")}
         />
+      ) : (
+        <Icon className="size-3.5 text-muted-foreground" aria-hidden="true" />
       )}
       {value}
     </Badge>
