@@ -14,10 +14,19 @@ import {
 } from "@/components/ui/dialog"
 import { useLanguage } from "@/hooks/use-language"
 import { siteContent } from "@/lib/content"
+import type { Language } from "@/lib/language"
 
 type Variant = "pro" | "ats"
 
-const FILE_NAME = "CV-Randrianarison-Dieu-Donne"
+/**
+ * The name a recruiter sees in their downloads folder and in their ATS. Kept ASCII-only:
+ * accented filenames are frequently mangled when re-uploaded to recruitment portals.
+ */
+function downloadName(variant: Variant, language: Language) {
+  const kind = language === "fr" ? "CV" : "Resume"
+  const suffix = variant === "ats" ? "-ATS" : ""
+  return `${kind}-RANDRIANARISON-Dieu-Donne-${language.toUpperCase()}${suffix}.pdf`
+}
 
 export function CvDownload() {
   const { language } = useLanguage()
@@ -98,7 +107,7 @@ export function CvDownload() {
               <a
                 key={id}
                 href={href}
-                download={`${FILE_NAME}-${id}-${language}.pdf`}
+                download={downloadName(id, language)}
                 onClick={() => setOpen(false)}
                 className="flex items-start gap-4 rounded-lg border border-border p-4 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >

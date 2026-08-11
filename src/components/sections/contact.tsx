@@ -9,9 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { SectionHeading } from "@/components/section-heading"
 import { useLanguage } from "@/hooks/use-language"
 import { siteContent } from "@/lib/content"
-
-const CONTACT_EMAIL = "ddieu0970@gmail.com"
-const CONTACT_PHONE = "+261 34 12 722 76"
+import { contact } from "@/lib/profile"
 
 export function Contact() {
   const { language } = useLanguage()
@@ -25,7 +23,7 @@ export function Contact() {
     const message = String(formData.get("message") || "")
     const subject = language === "fr" ? `Portfolio - message de ${name}` : `Portfolio message from ${name}`
     const replyTo = language === "fr" ? "Répondre à" : "Reply to"
-    window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`${message}\n\n${replyTo}: ${email}`)}`
+    window.location.href = `mailto:${contact.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`${message}\n\n${replyTo}: ${email}`)}`
   }
 
   return (
@@ -43,23 +41,23 @@ export function Contact() {
           <div className="flex flex-col gap-4">
             <a
               className="flex items-center gap-4 rounded-lg border border-border p-4 transition-colors hover:bg-muted"
-              href={`mailto:${CONTACT_EMAIL}`}
+              href={`mailto:${contact.email}`}
             >
               <Mail className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
               <span className="flex flex-col gap-0.5">
                 <span className="text-sm font-medium">{content.writeEmail}</span>
-                <span className="text-sm text-muted-foreground">{CONTACT_EMAIL}</span>
+                <span className="text-sm text-muted-foreground">{contact.email}</span>
               </span>
             </a>
 
             <a
               className="flex items-center gap-4 rounded-lg border border-border p-4 transition-colors hover:bg-muted"
-              href="tel:+261341272276"
+              href={contact.phoneHref}
             >
               <Phone className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
               <span className="flex flex-col gap-0.5">
                 <span className="text-sm font-medium">{content.call}</span>
-                <span className="text-sm text-muted-foreground">{CONTACT_PHONE}</span>
+                <span className="text-sm text-muted-foreground">{contact.phoneDisplay}</span>
               </span>
             </a>
           </div>

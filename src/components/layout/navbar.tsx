@@ -1,14 +1,16 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Menu, Moon, Sun, Languages, X } from "lucide-react"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/hooks/use-language"
 import { siteContent } from "@/lib/content"
+import { cn } from "@/lib/utils"
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
   const { resolvedTheme, setTheme } = useTheme()
   const { language, setLanguage } = useLanguage()
   const content = siteContent[language]
@@ -16,10 +18,19 @@ export function Navbar() {
   const toggleLanguage = () => setLanguage(language === "fr" ? "en" : "fr")
   const toggleTheme = () => setTheme(resolvedTheme === "dark" ? "light" : "dark")
 
+  // The bar stays transparent over the hero and gains its border and blur once the
+  // page scrolls, so the transition reads as one continuous movement.
+  useEffect(() => {
+    const onScroll = () => setIsScrolled(window.scrollY > 8)
+    onScroll()
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
+
   const themeButton = (
     <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme">
-      <Sun className="size-[1.2rem] rotate-0 scale-100 transition-transform dark:-rotate-90 dark:scale-0" />
-      <Moon className="absolute size-[1.2rem] rotate-90 scale-0 transition-transform dark:rotate-0 dark:scale-100" />
+      <Sun className="size-[1.2rem] rotate-0 scale-100 transition-transform duration-500 dark:-rotate-90 dark:scale-0" />
+      <Moon className="absolute size-[1.2rem] rotate-90 scale-0 transition-transform duration-500 dark:rotate-0 dark:scale-100" />
     </Button>
   )
 
@@ -31,7 +42,14 @@ export function Navbar() {
   )
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-border bg-background/85 backdrop-blur-xl">
+    <header
+      className={cn(
+        "fixed inset-x-0 top-0 z-50 border-b transition-[background-color,border-color,box-shadow,backdrop-filter] duration-500 ease-out",
+        isScrolled
+          ? "border-border bg-background/85 shadow-sm backdrop-blur-xl"
+          : "border-transparent bg-background/60 backdrop-blur-sm"
+      )}
+    >
       {/*
         The side groups share the leftover space equally (flex-1 on both), which is what
         keeps the links optically centred — justify-between would push them off-centre
@@ -72,8 +90,13 @@ export function Navbar() {
         </div>
       </nav>
 
+      {/*
+        The menu is mounted only while open and the animation is decorative: if it never
+        runs, the panel is still laid out and usable. Driving the open state through an
+        animated property instead would leave the menu collapsed whenever it fails.
+      */}
       {isOpen && (
-        <div id="mobile-menu" className="border-t border-border md:hidden">
+        <div id="mobile-menu" className="animate-dropdown border-t border-border md:hidden">
           <div className="container-padding-x container mx-auto flex flex-col gap-1 py-3">
             {content.nav.map(([label, id]) => (
               <Button

@@ -20,6 +20,8 @@ import { SectionHeading } from "@/components/section-heading"
 import { useLanguage } from "@/hooks/use-language"
 import { siteContent } from "@/lib/content"
 
+const isVideo = (media: string) => /\.(mp4|webm)$/i.test(media)
+
 const projectIcons = {
   education: GraduationCap,
   resume: FileText,
@@ -50,18 +52,36 @@ export function Projects() {
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {visibleProjects.map((project) => {
             const ProjectIcon = projectIcons[project.icon]
+            // Widened on purpose: `as const` narrows every entry to its literal path, which
+            // would make the no-media fallback unreachable for TypeScript.
+            const media: string = project.image
             return (
               <Card
                 key={project.title}
                 className="group flex flex-col overflow-hidden transition-colors hover:border-foreground/20"
               >
                 <div className="relative grid min-h-[180px] place-items-center overflow-hidden border-b border-border bg-muted">
-                  {project.image ? (
+                  {isVideo(media) ? (
+                    <video
+                      src={media}
+                      // Muted + playsInline are what let mobile browsers autoplay at all;
+                      // the clip is decorative, so it loops without controls.
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      preload="metadata"
+                      aria-hidden="true"
+                      className="project-image absolute inset-0 size-full object-cover"
+                    />
+                  ) : media ? (
                     <Image
-                      src={project.image}
+                      src={media}
                       alt=""
                       fill
                       sizes="(min-width: 1280px) 33vw, (min-width: 640px) 50vw, 100vw"
+                      // Animated GIFs lose their frames if the optimiser rewrites them.
+                      unoptimized={media.endsWith(".gif")}
                       className="project-image object-cover"
                     />
                   ) : (

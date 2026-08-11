@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "generate:cv": "tsx scripts/generate-cv.ts"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.20",
@@ -28,11 +29,15 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.13",
     "@types/node": "^20.19.11",
+    "@types/pdfkit": "^0.17.6",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "eslint": "^9.33.0",
     "eslint-config-next": "^16.1.6",
+    "pdf-parse": "^2.4.5",
+    "pdfkit": "^0.19.1",
     "tailwindcss": "^4.1.13",
+    "tsx": "^4.23.12",
     "typescript": "^5.8.3"
   }
 }

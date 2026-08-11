@@ -5,13 +5,11 @@ import { Github, Linkedin, Mail, Phone } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { useLanguage } from "@/hooks/use-language"
 import { siteContent } from "@/lib/content"
-
-const CONTACT_EMAIL = "ddieu0970@gmail.com"
-const CONTACT_PHONE = "+261 34 12 722 76"
+import { contact } from "@/lib/profile"
 
 const socials = [
-  { label: "LinkedIn", href: "https://linkedin.com/in/dede-randria", Icon: Linkedin },
-  { label: "GitHub", href: "https://github.com/dieudonne261", Icon: Github },
+  { label: "LinkedIn", href: contact.linkedin, Icon: Linkedin },
+  { label: "GitHub", href: contact.github, Icon: Github },
 ]
 
 export function Footer() {
@@ -50,18 +48,18 @@ export function Footer() {
               {content.contactKicker}
             </h2>
             <a
-              href={`mailto:${CONTACT_EMAIL}`}
+              href={`mailto:${contact.email}`}
               className="flex items-center gap-2 text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
             >
               <Mail className="size-4 shrink-0" aria-hidden="true" />
-              {CONTACT_EMAIL}
+              {contact.email}
             </a>
             <a
-              href="tel:+261341272276"
+              href={contact.phoneHref}
               className="flex items-center gap-2 text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
             >
               <Phone className="size-4 shrink-0" aria-hidden="true" />
-              {CONTACT_PHONE}
+              {contact.phoneDisplay}
             </a>
             <div className="mt-1 flex gap-2">
               {socials.map(({ label, href, Icon }) => (
@@ -82,9 +80,8 @@ export function Footer() {
 
         <Separator />
 
-        <div className="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-sm text-muted-foreground">
           <p>© {new Date().getFullYear()} Randrianarison Dieu Donné</p>
-          <p>{content.footer}</p>
         </div>
       </div>
     </footer>
