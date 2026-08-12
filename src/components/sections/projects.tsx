@@ -101,8 +101,8 @@ export function Projects() {
                   <h3 className="text-lg font-semibold tracking-tight">{project.title}</h3>
                   <p className="text-sm leading-relaxed text-muted-foreground">{project.description}</p>
 
-                  <div className="mt-auto pt-2">
-                    {project.url ? (
+                  {project.url && (
+                    <div className="mt-auto pt-2">
                       <a
                         href={project.url}
                         target="_blank"
@@ -112,10 +112,8 @@ export function Projects() {
                         {content.visitProject}
                         <ExternalLink className="size-3.5" aria-hidden="true" />
                       </a>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">{content.noPublicLink}</span>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )

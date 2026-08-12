@@ -7,6 +7,7 @@ import { Experience } from "@/components/sections/experience"
 import { Education } from "@/components/sections/education"
 import { Contact } from "@/components/sections/contact"
 import { AiChat } from "@/components/ai-chat"
+import { HeroIntro } from "@/components/hero-intro"
 import { LanguageTransition } from "@/components/language-transition"
 
 export default function Home() {
@@ -25,6 +26,7 @@ export default function Home() {
         <Footer />
       </LanguageTransition>
       <AiChat />
+      <HeroIntro />
     </div>
   )
 }

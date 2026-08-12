@@ -17,8 +17,7 @@ export function Hero() {
     <section className="border-b border-border" aria-labelledby="hero-heading">
       <div className="container-padding-x container mx-auto grid items-center gap-6 py-10 md:py-16 lg:grid-cols-[1fr_auto] lg:gap-16">
         <div className="flex flex-col items-center gap-6 text-center lg:items-start lg:text-left">
-          <Badge variant="secondary" className="gap-2 rounded-full px-3 py-1 font-medium">
-            <span className="size-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
+          <Badge variant="secondary" className="rounded-full px-3 py-1 font-medium">
             {content.availability}
           </Badge>
 
@@ -79,6 +78,8 @@ export function Hero() {
           <Image
             src="/assets/images/hero-portrait.png"
             alt={content.heroPortraitAlt}
+            // Read by the intro animation to know where the portrait must land.
+            data-hero-portrait=""
             width={704}
             height={1195}
             priority

@@ -18,11 +18,11 @@ import path from "node:path"
 import PDFDocument from "pdfkit"
 
 import { siteContent } from "../src/lib/content"
-import { contact, fullName, spokenLanguages } from "../src/lib/profile"
+import { contact, fullName, resumeFileName, spokenLanguages } from "../src/lib/profile"
 import type { Language } from "../src/lib/language"
 
 const OUTPUT_DIR = path.join(process.cwd(), "public", "assets", "cv")
-const PROJECT_COUNT = 4
+const PROJECT_COUNT = 3
 
 const LABELS = {
   fr: {
@@ -66,7 +66,9 @@ function buildResume(language: Language) {
 
   const doc = new PDFDocument({
     size: "A4",
-    margins: { top: 48, bottom: 48, left: 56, right: 56 },
+    // Tight but still printable margins: the whole resume must land on one page,
+    // which recruiters and parsers both prefer.
+    margins: { top: 34, bottom: 30, left: 42, right: 42 },
     info: {
       Title: `${fullName} - ${language === "fr" ? "CV" : "Resume"} (ATS)`,
       Author: fullName,
@@ -92,25 +94,25 @@ function buildResume(language: Language) {
     doc.text(toPlainText(text), { width, ...options })
 
   const heading = (text: string) => {
-    doc.moveDown(0.9)
-    doc.font("Helvetica-Bold").fontSize(11).fillColor("#000000")
+    doc.moveDown(0.55)
+    doc.font("Helvetica-Bold").fontSize(9.5).fillColor("#000000")
     write(text)
-    doc.moveDown(0.35)
+    doc.moveDown(0.25)
   }
 
   const body = (text: string, options: PDFKit.Mixins.TextOptions = {}) => {
-    doc.font("Helvetica").fontSize(10).fillColor("#1a1a1a")
-    write(text, { lineGap: 1.5, ...options })
+    doc.font("Helvetica").fontSize(8.5).fillColor("#1a1a1a")
+    write(text, { lineGap: 0.6, ...options })
   }
 
   // --- Header: name, title, then contact details on their own plain lines ---
-  doc.font("Helvetica-Bold").fontSize(18).fillColor("#000000")
+  doc.font("Helvetica-Bold").fontSize(15).fillColor("#000000")
   write(fullName)
-  doc.moveDown(0.2)
-  doc.font("Helvetica").fontSize(11).fillColor("#333333")
+  doc.moveDown(0.12)
+  doc.font("Helvetica").fontSize(9.5).fillColor("#333333")
   write(content.role)
-  doc.moveDown(0.4)
-  doc.fontSize(9.5).fillColor("#333333")
+  doc.moveDown(0.25)
+  doc.fontSize(8.5).fillColor("#333333")
   write(`${content.location} | ${contact.phoneDisplay} | ${contact.email}`)
   write(`LinkedIn: ${contact.linkedin} | GitHub: ${contact.github}`)
 
@@ -132,12 +134,12 @@ function buildResume(language: Language) {
   // --- Experience ---
   heading(labels.experience)
   content.experiences.forEach((experience, index) => {
-    if (index > 0) doc.moveDown(0.45)
-    doc.font("Helvetica-Bold").fontSize(10.5).fillColor("#000000")
+    if (index > 0) doc.moveDown(0.3)
+    doc.font("Helvetica-Bold").fontSize(9).fillColor("#000000")
     write(experience.role)
-    doc.font("Helvetica").fontSize(9.5).fillColor("#444444")
+    doc.font("Helvetica").fontSize(8).fillColor("#444444")
     write(`${experience.company} | ${experience.duration}`)
-    doc.moveDown(0.15)
+    doc.moveDown(0.1)
     for (const bullet of experience.bullets) {
       body(`- ${bullet}`, { indent: 8 })
     }
@@ -146,8 +148,8 @@ function buildResume(language: Language) {
   // --- Projects ---
   heading(labels.projects)
   content.projects.slice(0, PROJECT_COUNT).forEach((project, index) => {
-    if (index > 0) doc.moveDown(0.4)
-    doc.font("Helvetica-Bold").fontSize(10.5).fillColor("#000000")
+    if (index > 0) doc.moveDown(0.28)
+    doc.font("Helvetica-Bold").fontSize(9).fillColor("#000000")
     write(`${project.title} - ${project.label}`)
     body(project.description)
     if (project.url) body(project.url)
@@ -156,8 +158,8 @@ function buildResume(language: Language) {
   // --- Education ---
   heading(labels.education)
   content.education.forEach((item, index) => {
-    if (index > 0) doc.moveDown(0.35)
-    doc.font("Helvetica-Bold").fontSize(10.5).fillColor("#000000")
+    if (index > 0) doc.moveDown(0.22)
+    doc.font("Helvetica-Bold").fontSize(9).fillColor("#000000")
     write(item.title)
     body(item.details)
   })
@@ -173,7 +175,7 @@ function buildResume(language: Language) {
 
 async function writeResume(language: Language) {
   const doc = buildResume(language)
-  const target = path.join(OUTPUT_DIR, `cv-ats-${language}.pdf`)
+  const target = path.join(OUTPUT_DIR, resumeFileName("ats", language))
   fs.mkdirSync(OUTPUT_DIR, { recursive: true })
 
   await new Promise<void>((resolve, reject) => {

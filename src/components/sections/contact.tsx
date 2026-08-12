@@ -88,7 +88,6 @@ export function Contact() {
               {content.send}
               <Send className="size-4" />
             </Button>
-            <p className="text-center text-xs text-muted-foreground">{content.formHint}</p>
           </form>
         </Card>
       </div>

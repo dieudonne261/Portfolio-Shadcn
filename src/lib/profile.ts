@@ -14,6 +14,16 @@ export const contact = {
 
 export const fullName = "RANDRIANARISON Dieu Donné"
 
+export type ResumeVariant = "pro" | "ats"
+
+/**
+ * One rule for the file on disk, the URL and the downloaded name, so a recruiter always
+ * sees the same professional filename wherever it comes from.
+ */
+export function resumeFileName(variant: ResumeVariant, language: Language) {
+  return `CV_${fullName}_${variant.toUpperCase()}_${language.toUpperCase()}.pdf`
+}
+
 /** Spoken languages, shared by the About badges and the generated resume. */
 export const spokenLanguages = [
   { fr: "Français · Avancé", en: "French · Advanced" },
