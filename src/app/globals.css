@@ -244,6 +244,16 @@ footer {
   to { opacity: 0; transform: translate(-50%, -50%) scale(0.96); }
 }
 
+/*
+  Radix unmounts only once the exit animation reports back. Should that never happen, the
+  node would linger and trap every click, so the closed state is made inert by a property
+  no animation can override.
+*/
+[data-slot="dialog-overlay"][data-state="closed"],
+[data-slot="dialog-content"][data-state="closed"] {
+  pointer-events: none;
+}
+
 [data-slot="dialog-overlay"][data-state="open"] {
   animation: overlay-in 200ms ease-out;
 }

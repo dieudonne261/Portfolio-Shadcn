@@ -17,8 +17,16 @@ const RISE_MS = 900
 const HOLD_MS = 420
 const TRAVEL_MS = 850
 const FADE_MS = 450
+const TOTAL_MS = BLANK_MS + RISE_MS + HOLD_MS + TRAVEL_MS + FADE_MS
 
 const SESSION_KEY = "portfolio-intro-played"
+
+/**
+ * React invokes effects twice in development. Since the decision writes the session flag,
+ * the second pass would read back its own write and cancel the sequence — so the verdict
+ * is computed once per module load and reused. A real reload re-evaluates the module.
+ */
+let decision: "blank" | "done" | null = null
 
 type Phase = "checking" | "blank" | "rise" | "travel" | "fading" | "done"
 
@@ -54,40 +62,53 @@ export function HeroIntro() {
    * both sides must first render the cover, then the client resolves it before paint.
    */
   useLayoutEffect(() => {
-    const alreadyPlayed = window.sessionStorage.getItem(SESSION_KEY) === "1"
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    if (alreadyPlayed || reducedMotion) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- client-only decision, see above
-      setPhase("done")
-      return
+    if (decision === null) {
+      const alreadyPlayed = window.sessionStorage.getItem(SESSION_KEY) === "1"
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      decision = alreadyPlayed || reducedMotion ? "done" : "blank"
+      if (decision === "blank") window.sessionStorage.setItem(SESSION_KEY, "1")
     }
-    window.sessionStorage.setItem(SESSION_KEY, "1")
-    setPhase("blank")
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- client-only decision, see above
+    setPhase(decision)
   }, [])
 
   useEffect(() => {
     if (phase !== "blank") return
 
-    // The hero image must be laid out before its destination can be read.
-    let frames = 0
-    const waitForTarget = () => {
+    let attempts = 0
+    let cancelled = false
+
+    /**
+     * Polled with setTimeout rather than requestAnimationFrame: rAF is throttled to a
+     * standstill in backgrounded or non-compositing contexts, and the cover must never
+     * depend on a callback that might not arrive — it would leave the page hidden and
+     * unscrollable.
+     */
+    const tryMeasure = () => {
+      if (cancelled) return
       const next = measure()
       if (next) {
         setGeometry(next)
         schedule(() => setPhase("rise"), BLANK_MS)
         schedule(() => setPhase("travel"), BLANK_MS + RISE_MS + HOLD_MS)
         schedule(() => setPhase("fading"), BLANK_MS + RISE_MS + HOLD_MS + TRAVEL_MS)
-        schedule(() => setPhase("done"), BLANK_MS + RISE_MS + HOLD_MS + TRAVEL_MS + FADE_MS)
+        schedule(() => setPhase("done"), TOTAL_MS)
         return
       }
-      // Give up rather than hold the page hostage if the hero never appears.
-      if (frames++ > 120) {
+      if (attempts++ > 40) {
         setPhase("done")
         return
       }
-      requestAnimationFrame(waitForTarget)
+      window.setTimeout(tryMeasure, 50)
     }
-    requestAnimationFrame(waitForTarget)
+    tryMeasure()
+
+    // Last resort: whatever happens above, the page is handed back to the visitor.
+    const failsafe = window.setTimeout(() => setPhase("done"), TOTAL_MS + 2000)
+    return () => {
+      cancelled = true
+      window.clearTimeout(failsafe)
+    }
   }, [phase, measure, schedule])
 
   // Keep the page still while the sequence plays.
